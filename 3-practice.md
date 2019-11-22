@@ -343,10 +343,10 @@ class UserInputReport {
     if (isInvalidDateFormat(reportDate)) {
       throw new BadUserInputException("report_date", "invalid format");
     }
-    if (isLessThan120BytesInUtf8(reportTitle)) {
+    if (!isLessThan120BytesInUtf8(reportTitle)) {
       throw new BadUserInputException("report_title", “too long");
     }
-    if (isLessThan6000BytesInUtf8(reportTitle)) {
+    if (!isLessThan6000BytesInUtf8(reportTitle)) {
       throw new BadUserInputException("report_content", "too long");
     }
   }
@@ -388,10 +388,10 @@ class UserInputReport {
     if (isInvalidDateFormat(reportDate)) {
       inputErrors.add(new InputError("report_date", "invalid format"));
     }
-    if (isLessThan120BytesInUtf8(reportTitle)) {
+    if (!isLessThan120BytesInUtf8(reportTitle)) {
       inputErrors.add(new InputError("report_title", “too long"));
     }
-    if (isLessThan6000BytesInUtf8(reportTitle)) {
+    if (!isLessThan6000BytesInUtf8(reportTitle)) {
       inputErrors.add(new InputError("report_content", "too long"));
     }
     return new ErrorNotification(inputErrors);

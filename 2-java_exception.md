@@ -144,6 +144,7 @@ public Pair<Beer, Change> pouringBeer()
 ```
 
 6.例外処理
+---
 
 ### 例外処理をおこなう場合...
 

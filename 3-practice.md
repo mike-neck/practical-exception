@@ -53,7 +53,7 @@ try {
 
 ##### Slf4J - logback のログ出力 1
 
-クイズ : 以下のログが発生した原因は何か分析せよ
+クイズ : 以下のログから例外が発生した原因は何か分析せよ
 
 ```text
 2019/05/21 21:16:11.871, main, INFO, com.example.web.OrderController, unexpected error
@@ -73,7 +73,7 @@ com.example.beer.vendor.BeerLeakingException: null
 
 ##### Slf4J - logback のログ出力 2
 
-クイズ : 以下のログが発生した原因は何か分析せよ
+クイズ : 以下のログから例外が発生した原因は何か分析せよ
 
 ```text
 2019/05/21 21:16:11.871, main, INFO, com.example.web.OrderController, unexpected error

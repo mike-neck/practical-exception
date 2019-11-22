@@ -43,4 +43,96 @@ try {
 * `ChangeReserve#prepareChange` から `NoChangeException` で通知された例外のハンドリングがないため
 機能落ちしているが、そのバグ(事後条件違反)をコンパイラーで検出できない
 
+---
+
+2.例外のデフォルトコンストラクターを使わない - あるいは例外オブジェクトを生成する場合は必ず詳細メッセージを設定する
+
+* 例外を通知するメソッドのコードを書いている人には自明な状態でも、そのメソッドのユーザーにとっては自明ではない
+* 運用フェーズのエンジニア(エラーを分析してソフトウェアを改善する)にとっては、エラーメッセージだけが唯一の問題に関する情報なので、改善の機会の芽を摘まない
+
+##### Slf4J - logback のログ出力 1
+
+クイズ : 以下のログが発生した原因は何か分析せよ
+
+```text
+2019/05/21 21:16:11.871, main, INFO, com.example.web.OrderController, unexpected error
+com.example.beer.vendor.BeerLeakingException: null
+  at com.example.beer.vendor.BeerValve.closeValve(BeerValve.java:1034)
+  at com.example.beer.vendor.BeerServer.pourBeer(BeerServer.java:429)
+  at java.base/jva.util.stream.ReferencePipleline$3$1.accept(Referencepipeline.j
+  at java.base/jva.util.stream.ReferencePipleline$3$1.accept(Referencepipeline.j
+  at java.base/jva.util.stream.ReferencePipleline$3$1.accept(Referencepipeline.j
+  at java.base/java.util.AbstractList$RandomAccessSpliterator.forEachRemaining(A
+...
+  at com.example.beer.BeerService.newMugOfBeer(BeerService.java:643)
+  at com.example.beer.OrderController.newMugOfBeer(OrderController.java:311)
+```
+
+答え : わからん
+
+##### Slf4J - logback のログ出力 2
+
+クイズ : 以下のログが発生した原因は何か分析せよ
+
+```text
+2019/05/21 21:16:11.871, main, INFO, com.example.web.OrderController, unexpected error
+com.example.beer.vendor.BeerLeakingException: valve not closed completely,
+beer-temperature: 4C, outside-temperature: 33C, usage-count: 3045
+  at com.example.beer.vendor.BeerValve.closeValve(BeerValve.java:1034)
+  at com.example.beer.vendor.BeerServer.pourBeer(BeerServer.java:429)
+  at java.base/jva.util.stream.ReferencePipleline$3$1.accept(Referencepipeline.j
+  at java.base/jva.util.stream.ReferencePipleline$3$1.accept(Referencepipeline.j
+  at java.base/jva.util.stream.ReferencePipleline$3$1.accept(Referencepipeline.j
+  at java.base/java.util.AbstractList$RandomAccessSpliterator.forEachRemaining(A
+...
+  at com.example.beer.BeerService.newMugOfBeer(BeerService.java:643)
+  at com.example.beer.OrderController.newMugOfBeer(OrderController.java:311)
+```
+
+答え
+
+* バルブが完全に閉じていない
+  * ビールの温度 4 ℃
+  * 外気温 33 ℃
+  * バルブの開閉回数は `3045` 回の時に発生
+
+##### 回避方法
+
+* 独自例外クラスを作る場合は、デフォルトコンストラクターを利用できないようにする
+
+```java
+class BeerLeakingException extends Exception {
+
+  final int beerTemperature;
+  final int outsideTemperature;
+  final int usageCount;
+
+  BeerLeakingException(String message, int beerTemperature,
+      int outsideTemperature, int usageCount) {
+    super(message);
+    this.beerTemperature = beerTemperature;
+    this.outsideTemperature = outsideTemperature;
+    this.usageCount = usageCount;
+  }
+  // BeerLakingException() デフォルトコンストラクターを作らない 
+}
+```
+
+##### 注意
+
+* 例外のコンストラクターに設定するメッセージは、必ずしもエンドユーザーに見せるメッセージではない
+  * `ResourceBundle` などの仕組みで解決する
+
+```java 
+try {
+
+} catch (BeerLeakingException e) {
+  logger.info("unexpected error", e);
+  return Response
+      .temporaryUnavailable(
+          Map.of("message", e.getMessage()));
+}
+```
+
+
 

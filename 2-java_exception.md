@@ -47,9 +47,9 @@ class ItemNotFoundException extends Exception {
   final int categoryId;
 
   ItemNotFoundException(int itemId, int categoryId) {
-    super(String.format(
-      "item not found, id: %d, category: %d",
-          itemId, categoryId));
+    super(
+      "item not found, id: %d, category: %d"
+          .format(itemId, categoryId));
     this.itemId = itemId;
     this.categoryId = categoryId;
   }
